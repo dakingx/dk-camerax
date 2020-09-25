@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">dk-dialog</string>
+
+    <string name="main_btn_front">前置摄像头</string>
+    <string name="main_btn_back">后置摄像头</string>
+</resources>
