@@ -39,6 +39,6 @@ dependencies {
     implementation project(':preview')
     implementation project(':camerax')
 
-    // constraint layout
-    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    // material
+    implementation "com.google.android.material:material:$material_version"
 }

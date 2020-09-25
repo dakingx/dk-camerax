@@ -40,13 +40,16 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // kotlin
-    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:$kotlin_stdlib_jdk_version:$kotlin_version"
     // ktx
     api "androidx.core:core-ktx:$ktx_version"
     // appcompat
     api "androidx.appcompat:appcompat:$app_compat_version"
-    // material
-    api "com.google.android.material:material:$material_version"
+    // PhotoView
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+    // exoplayer
+    implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
 }
 
 // 打包源码

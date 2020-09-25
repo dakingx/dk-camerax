@@ -5,5 +5,7 @@
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnSurface">#000000</color>
 
+    <color name="colorError">#E53935</color>
+
     <color name="textColorSecondary">#616161</color>
 </resources>

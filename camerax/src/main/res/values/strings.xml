@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!-- camera -->
+    <string name="tip_open_camera_fail">打开相机失败</string>
+    <string name="tip_other_app_hold_the_camera">相机被其他应用占用</string>
+    <string name="tip_capture_image_fail">拍照失败：%s</string>
+    <string name="tip_capture_video_fail">录制视频失败：%s</string>
+    <string name="tip_output_uri_not_found">输出文件的路径不存在</string>
+    <string name="tip_component_initialize_fail">组件初始化失败</string>
+    <string name="tip_lack_required_permissions">缺少必要的应用权限</string>
+    <string name="tip_gen_tmp_file_fail">创建临时文件失败</string>
 </resources>
