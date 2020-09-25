@@ -89,11 +89,11 @@ class CameraFragment : BaseFragment() {
         )
 
         @JvmStatic
-        fun newInstance(fileProviderAuthority: String, cameraDirection: Int) =
+        fun newInstance(fileProviderAuthority: String, cameraDirection: CameraDirection) =
             CameraFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_FILE_PROVIDER_AUTH, fileProviderAuthority)
-                    putInt(ARG_CAMERA_DIRECTION, cameraDirection)
+                    putInt(ARG_CAMERA_DIRECTION, cameraDirection.code)
                 }
             }
 

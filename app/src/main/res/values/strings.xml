@@ -1,6 +1,12 @@
 <resources>
-    <string name="app_name">dk-dialog</string>
+    <string name="app_name">dk-camerax</string>
+
+    <string name="tip_lack_permission">缺少必要的应用权限</string>
 
     <string name="main_btn_front">前置摄像头</string>
     <string name="main_btn_back">后置摄像头</string>
+
+    <string name="camera_btn_capture">抓拍</string>
+    <string name="camera_btn_start_record">开始拍摄</string>
+    <string name="camera_btn_stop_record">停止拍摄</string>
 </resources>
