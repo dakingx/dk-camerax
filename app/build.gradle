@@ -41,6 +41,8 @@ dependencies {
 
     // material
     implementation "com.google.android.material:material:$material_version"
+    // fragment
+    implementation "androidx.fragment:fragment:$fragment_version"
     // dexter for permission
     implementation 'com.karumi:dexter:6.2.1'
 }
