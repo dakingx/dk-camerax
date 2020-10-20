@@ -111,7 +111,7 @@ class CameraFragment : BaseFragment() {
     private var fileProviderAuthority: String = ""
     private var cameraDirection: Int = CameraDirection.Front.code
 
-    private var listener: CameraFragmentListener? = null
+    var cameraListener: CameraFragmentListener? = null
 
     // 组件初始化
     @Volatile
@@ -156,7 +156,9 @@ class CameraFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        listener = context as? CameraFragmentListener
+        if (cameraListener == null) {
+            cameraListener = context as? CameraFragmentListener
+        }
     }
 
     override fun onCreateView(
@@ -172,7 +174,7 @@ class CameraFragment : BaseFragment() {
     }
 
     override fun onDestroy() {
-        listener = null
+        cameraListener = null
 
         if (initialized) {
             executorService.shutdown()
@@ -242,7 +244,7 @@ class CameraFragment : BaseFragment() {
         imageAnalysis.setAnalyzer(executorService, { imageProxy ->
             // 图片分析处理逻辑
             imageProxy.use {
-                listener?.analyseImage(it)
+                cameraListener?.analyseImage(it)
             }
         })
 
@@ -306,7 +308,7 @@ class CameraFragment : BaseFragment() {
 
                     switchToPreviewState()
 
-                    listener?.onOperationResult(
+                    cameraListener?.onOperationResult(
                         if (savedUri != null) CameraOpResult.Success(CameraOp.Image, savedUri)
                         else CameraOpResult.Failure(
                             CameraOp.Image,
@@ -323,7 +325,7 @@ class CameraFragment : BaseFragment() {
 
                     switchToPreviewState()
 
-                    listener?.onOperationResult(CameraOpResult.Failure(CameraOp.Image, msg))
+                    cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Image, msg))
                 }
             })
 
@@ -373,7 +375,7 @@ class CameraFragment : BaseFragment() {
 
                     switchToPreviewState()
 
-                    listener?.onOperationResult(
+                    cameraListener?.onOperationResult(
                         if (savedUri != null) CameraOpResult.Success(CameraOp.Video, savedUri)
                         else CameraOpResult.Failure(
                             CameraOp.Video,
@@ -389,7 +391,7 @@ class CameraFragment : BaseFragment() {
 
                     switchToPreviewState()
 
-                    listener?.onOperationResult(CameraOpResult.Failure(CameraOp.Video, msg))
+                    cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Video, msg))
                 }
             })
 
