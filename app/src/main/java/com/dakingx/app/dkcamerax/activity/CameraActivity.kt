@@ -78,15 +78,19 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
 
     private fun setImageUri(uri: Uri) {
         runOnUiThread {
-            supportFragmentManager.beginTransaction().show(previewImageFragment).commitNow()
-            previewImageFragment.setImageURI(uri)
+            if (!supportFragmentManager.isDestroyed) {
+                supportFragmentManager.beginTransaction().show(previewImageFragment).commitNow()
+                previewImageFragment.setImageURI(uri)
+            }
         }
     }
 
     private fun setVideoURI(uri: Uri) {
         runOnUiThread {
-            supportFragmentManager.beginTransaction().show(previewVideoFragment).commitNow()
-            previewVideoFragment.setVideoURI(uri)
+            if (!supportFragmentManager.isDestroyed) {
+                supportFragmentManager.beginTransaction().show(previewVideoFragment).commitNow()
+                previewVideoFragment.setVideoURI(uri)
+            }
         }
     }
 

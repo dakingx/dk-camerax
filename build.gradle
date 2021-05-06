@@ -14,7 +14,7 @@ buildscript {
         material_version = '1.2.1'
         fragment_version = '1.2.5'
 
-        exoplayer_version = '2.11.8'
+        exoplayer_version = '2.13.3'
     }
 
     repositories {
@@ -24,8 +24,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:4.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }

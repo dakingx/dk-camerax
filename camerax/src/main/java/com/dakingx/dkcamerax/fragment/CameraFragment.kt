@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.Surface
@@ -113,6 +115,8 @@ class CameraFragment : BaseFragment() {
 
     var cameraListener: CameraFragmentListener? = null
 
+    private val handler = Handler(Looper.getMainLooper())
+
     // 组件初始化
     @Volatile
     private var initialized = false
@@ -129,13 +133,13 @@ class CameraFragment : BaseFragment() {
     // 摄像头状态
     private val cameraState = AtomicReference<CameraState>(CameraState.Idle)
 
-    private lateinit var executorService: ExecutorService
-    private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var cameraSelector: CameraSelector
-    private lateinit var preview: Preview
-    private lateinit var imageCapture: ImageCapture
-    private lateinit var videoCapture: VideoCapture
-    private lateinit var imageAnalysis: ImageAnalysis
+    private var executorService: ExecutorService? = null
+    private var cameraProvider: ProcessCameraProvider? = null
+    private var cameraSelector: CameraSelector? = null
+    private var preview: Preview? = null
+    private var imageCapture: ImageCapture? = null
+    private var videoCapture: VideoCapture? = null
+    private var imageAnalysis: ImageAnalysis? = null
 
     override fun restoreState(bundle: Bundle?) {
         bundle?.apply {
@@ -173,15 +177,56 @@ class CameraFragment : BaseFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        clear()
+
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         cameraListener = null
 
-        if (initialized) {
-            executorService.shutdown()
-        }
-        initialized = false
-
         super.onDestroy()
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun clear() {
+        handler.removeCallbacksAndMessages(null)
+
+        try {
+            if (initialized) {
+                initialized = false
+
+                preview?.setSurfaceProvider(null)
+
+                when {
+                    cameraState.get() == CameraState.Video -> {
+                        videoCapture?.stopRecording()
+                        videoCapture?.camera?.release()
+                    }
+                    cameraState.get() == CameraState.Image -> {
+                        imageCapture?.camera?.release()
+                    }
+                    else -> {
+                        preview?.camera?.release()
+                    }
+                }
+                videoCapture = null
+                imageCapture = null
+                preview = null
+
+                executorService?.shutdown()
+                executorService = null
+
+                imageAnalysis?.clearAnalyzer()
+                imageAnalysis = null
+
+                cameraProvider?.unbindAll()
+                cameraProvider?.shutdown()
+                cameraProvider = null
+            }
+        } catch (e: Throwable) {
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -191,10 +236,12 @@ class CameraFragment : BaseFragment() {
             return
         }
 
-        this.executorService = Executors.newSingleThreadExecutor()
+        clear()
+
+        executorService = Executors.newSingleThreadExecutor()
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        this.cameraProvider = cameraProviderFuture.get()
+        cameraProvider = cameraProviderFuture.get()
 
         // 摄像头方向
         when (CameraDirection.generateByCode(cameraDirection)) {
@@ -232,7 +279,7 @@ class CameraFragment : BaseFragment() {
 
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-        preview = genPreviewBuilderWithExtenders(cameraSelector)
+        preview = genPreviewBuilderWithExtenders(cameraSelector!!)
             // 宽高比
             .setTargetAspectRatio(screenAspectRatio)
             // 初始的旋转角度
@@ -241,7 +288,7 @@ class CameraFragment : BaseFragment() {
         imageAnalysis = ImageAnalysis.Builder().setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation).build()
 
-        imageAnalysis.setAnalyzer(executorService, { imageProxy ->
+        imageAnalysis?.setAnalyzer(executorService!!, { imageProxy ->
             // 图片分析处理逻辑
             imageProxy.use {
                 cameraListener?.analyseImage(it)
@@ -255,12 +302,12 @@ class CameraFragment : BaseFragment() {
 
     fun startPreview(force: Boolean = false): Boolean {
         return if (force || cameraState.compareAndSet(CameraState.Idle, CameraState.Preview)) {
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
-                requireActivity(), cameraSelector, preview, imageAnalysis
+            cameraProvider?.unbindAll()
+            cameraProvider?.bindToLifecycle(
+                requireActivity(), cameraSelector!!, preview, imageAnalysis
             )
 
-            preview.setSurfaceProvider(previewView.surfaceProvider)
+            preview?.setSurfaceProvider(previewView.surfaceProvider)
 
             true
         } else {
@@ -279,17 +326,18 @@ class CameraFragment : BaseFragment() {
             return false
         }
 
-        imageCapture = genImageCaptureExtenderWithExtenders(cameraSelector)
+        imageCapture = genImageCaptureExtenderWithExtenders(cameraSelector!!)
             // 优化捕获速度，可能降低图片质量
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // 闪光模式
             .setFlashMode(ImageCapture.FLASH_MODE_OFF).setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation).build()
 
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(requireActivity(), cameraSelector, preview, imageCapture)
-
-        preview.setSurfaceProvider(previewView.surfaceProvider)
+        cameraProvider?.run {
+            unbindAll()
+            bindToLifecycle(requireActivity(), cameraSelector!!, preview, imageCapture)
+        }
+        preview?.setSurfaceProvider(previewView.surfaceProvider)
 
         val file = requireContext().generateTempFile("capture_image")
         if (file == null) {
@@ -300,10 +348,12 @@ class CameraFragment : BaseFragment() {
 
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).build()
 
-        imageCapture.takePicture(fileOptions,
-            executorService,
+        imageCapture?.takePicture(fileOptions,
+            executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    if (!initialized) return
+
                     val savedUri = outputFileResults.savedUri ?: filePath2Uri(file.absolutePath)
 
                     switchToPreviewState()
@@ -315,9 +365,13 @@ class CameraFragment : BaseFragment() {
                             getString(R.string.tip_output_uri_not_found)
                         )
                     )
+
+                    imageCapture = null
                 }
 
                 override fun onError(exception: ImageCaptureException) {
+                    if (!initialized) return
+
                     val msg = String.format(
                         requireContext().getString(R.string.tip_capture_image_fail),
                         exception.toString()
@@ -326,6 +380,8 @@ class CameraFragment : BaseFragment() {
                     switchToPreviewState()
 
                     cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Image, msg))
+
+                    imageCapture = null
                 }
             })
 
@@ -351,10 +407,12 @@ class CameraFragment : BaseFragment() {
             // bit率
             .setBitRate(1024 * 1024).build()
 
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(requireActivity(), cameraSelector, preview, videoCapture)
+        cameraProvider?.run {
+            unbindAll()
+            bindToLifecycle(requireActivity(), cameraSelector!!, preview, videoCapture)
+        }
 
-        preview.setSurfaceProvider(previewView.surfaceProvider)
+        preview?.setSurfaceProvider(previewView.surfaceProvider)
 
         val file = requireContext().generateTempFile("capture_image", "mp4")
         if (file == null) {
@@ -367,10 +425,12 @@ class CameraFragment : BaseFragment() {
 
         topProgressBar.visibility = View.VISIBLE
 
-        videoCapture.startRecording(fileOptions,
-            executorService,
+        videoCapture?.startRecording(fileOptions,
+            executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
+                    if (!initialized) return
+
                     val savedUri = outputFileResults.savedUri ?: filePath2Uri(file.absolutePath)
 
                     switchToPreviewState()
@@ -382,9 +442,13 @@ class CameraFragment : BaseFragment() {
                             getString(R.string.tip_output_uri_not_found)
                         )
                     )
+
+                    videoCapture = null
                 }
 
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
+                    if (!initialized) return
+
                     val msg = String.format(
                         requireContext().getString(R.string.tip_capture_video_fail), message
                     )
@@ -392,6 +456,8 @@ class CameraFragment : BaseFragment() {
                     switchToPreviewState()
 
                     cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Video, msg))
+
+                    videoCapture = null
                 }
             })
 
@@ -410,12 +476,12 @@ class CameraFragment : BaseFragment() {
             return false
         }
 
-        videoCapture.stopRecording()
+        videoCapture?.stopRecording()
         return true
     }
 
     private fun switchToPreviewState() {
-        requireActivity().runOnUiThread {
+        handler.post {
             topProgressBar.visibility = View.GONE
         }
 
@@ -496,9 +562,11 @@ class CameraFragment : BaseFragment() {
         else -> LENS_FACING_NULL
     }
 
-    private fun hasFrontCamera() = cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
+    private fun hasFrontCamera() =
+        cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
 
-    private fun hasBackCamera() = cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
+    private fun hasBackCamera() =
+        cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
 
     private fun filePath2Uri(filePath: String): Uri? =
         context?.filePath2Uri(fileProviderAuthority, filePath)

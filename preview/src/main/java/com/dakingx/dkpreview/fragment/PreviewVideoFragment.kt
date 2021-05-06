@@ -73,10 +73,10 @@ class PreviewVideoFragment : BaseFragment() {
         super.onPause()
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         releasePlayer()
 
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     fun setVideoURI(uri: Uri) {
