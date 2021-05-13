@@ -388,7 +388,7 @@ class CameraFragment : BaseFragment() {
         return true
     }
 
-    @SuppressLint("RestrictedApi")
+    @SuppressLint("RestrictedApi", "MissingPermission")
     fun startRecording(): Boolean {
         // 组件是否初始化
         if (!initialized) {
