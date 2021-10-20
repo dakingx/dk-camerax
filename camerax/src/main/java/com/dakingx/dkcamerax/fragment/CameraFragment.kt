@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.camera.core.*
-import androidx.camera.extensions.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.dakingx.dkcamerax.R
 import com.dakingx.dkcamerax.ext.checkAppPermission
@@ -490,27 +489,28 @@ class CameraFragment : BaseFragment() {
 
     private fun genPreviewBuilderWithExtenders(cameraSelector: CameraSelector): Preview.Builder {
         val builder = Preview.Builder()
+        //ExtensionsManager API文档：https://developer.android.google.cn/reference/androidx/camera/extensions/ExtensionsManager
 
-        val autoExtender = AutoPreviewExtender.create(builder)
-        if (autoExtender.isExtensionAvailable(cameraSelector)) {
-            autoExtender.enableExtension(cameraSelector)
-        }
-        val bokehExtender = BokehPreviewExtender.create(builder)
-        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
-            bokehExtender.enableExtension(cameraSelector)
-        }
-        val hdrExtender = HdrPreviewExtender.create(builder)
-        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
-            hdrExtender.enableExtension(cameraSelector)
-        }
-        val beautyExtender = BeautyPreviewExtender.create(builder)
-        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
-            beautyExtender.enableExtension(cameraSelector)
-        }
-        val nightExtender = NightPreviewExtender.create(builder)
-        if (nightExtender.isExtensionAvailable(cameraSelector)) {
-            nightExtender.enableExtension(cameraSelector)
-        }
+//        val autoExtender = AutoPreviewExtender.create(builder)
+//        if (autoExtender.isExtensionAvailable(cameraSelector)) {
+//            autoExtender.enableExtension(cameraSelector)
+//        }
+//        val bokehExtender = BokehPreviewExtender.create(builder)
+//        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
+//            bokehExtender.enableExtension(cameraSelector)
+//        }
+//        val hdrExtender = HdrPreviewExtender.create(builder)
+//        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
+//            hdrExtender.enableExtension(cameraSelector)
+//        }
+//        val beautyExtender = BeautyPreviewExtender.create(builder)
+//        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
+//            beautyExtender.enableExtension(cameraSelector)
+//        }
+//        val nightExtender = NightPreviewExtender.create(builder)
+//        if (nightExtender.isExtensionAvailable(cameraSelector)) {
+//            nightExtender.enableExtension(cameraSelector)
+//        }
 
         return builder
     }
@@ -518,26 +518,26 @@ class CameraFragment : BaseFragment() {
     private fun genImageCaptureExtenderWithExtenders(cameraSelector: CameraSelector): ImageCapture.Builder {
         val builder = ImageCapture.Builder()
 
-        val autoExtender = AutoImageCaptureExtender.create(builder)
-        if (autoExtender.isExtensionAvailable(cameraSelector)) {
-            autoExtender.enableExtension(cameraSelector)
-        }
-        val bokehExtender = BokehImageCaptureExtender.create(builder)
-        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
-            bokehExtender.enableExtension(cameraSelector)
-        }
-        val hdrExtender = HdrImageCaptureExtender.create(builder)
-        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
-            hdrExtender.enableExtension(cameraSelector)
-        }
-        val beautyExtender = BeautyImageCaptureExtender.create(builder)
-        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
-            beautyExtender.enableExtension(cameraSelector)
-        }
-        val nightExtender = NightImageCaptureExtender.create(builder)
-        if (nightExtender.isExtensionAvailable(cameraSelector)) {
-            nightExtender.enableExtension(cameraSelector)
-        }
+//        val autoExtender = AutoImageCaptureExtender.create(builder)
+//        if (autoExtender.isExtensionAvailable(cameraSelector)) {
+//            autoExtender.enableExtension(cameraSelector)
+//        }
+//        val bokehExtender = BokehImageCaptureExtender.create(builder)
+//        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
+//            bokehExtender.enableExtension(cameraSelector)
+//        }
+//        val hdrExtender = HdrImageCaptureExtender.create(builder)
+//        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
+//            hdrExtender.enableExtension(cameraSelector)
+//        }
+//        val beautyExtender = BeautyImageCaptureExtender.create(builder)
+//        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
+//            beautyExtender.enableExtension(cameraSelector)
+//        }
+//        val nightExtender = NightImageCaptureExtender.create(builder)
+//        if (nightExtender.isExtensionAvailable(cameraSelector)) {
+//            nightExtender.enableExtension(cameraSelector)
+//        }
 
         return builder
     }
