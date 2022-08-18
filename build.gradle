@@ -16,7 +16,7 @@ buildscript {
 
         exoplayer_version = '2.13.3'
 
-        camerax_version = '1.0.2'
+        camerax_version = '1.1.0-alpha09'
         camerax_view_version = '1.0.0-alpha29'
     }
 

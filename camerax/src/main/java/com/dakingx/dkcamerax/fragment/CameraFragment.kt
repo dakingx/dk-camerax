@@ -14,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.camera.core.*
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.dakingx.dkcamerax.R
 import com.dakingx.dkcamerax.ext.checkAppPermission
@@ -29,7 +31,6 @@ import kotlin.math.min
 
 // 摄像头方向
 sealed class CameraDirection(val code: Int) {
-
     companion object {
         fun generateByCode(code: Int): CameraDirection = when (code) {
             Front.code -> Front
@@ -75,12 +76,10 @@ sealed class CameraOp {
 // 摄像头操作结果
 sealed class CameraOpResult {
     class Success(val op: CameraOp, val uri: Uri) : CameraOpResult()
-
     class Failure(val op: CameraOp, val msg: String) : CameraOpResult()
 }
 
 class CameraFragment : BaseFragment() {
-
     companion object {
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
@@ -134,6 +133,7 @@ class CameraFragment : BaseFragment() {
 
     private var executorService: ExecutorService? = null
     private var cameraProvider: ProcessCameraProvider? = null
+    private var extensionsManager: ExtensionsManager? = null
     private var cameraSelector: CameraSelector? = null
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
@@ -142,9 +142,7 @@ class CameraFragment : BaseFragment() {
 
     override fun restoreState(bundle: Bundle?) {
         bundle?.apply {
-            getString(ARG_FILE_PROVIDER_AUTH)?.let {
-                fileProviderAuthority = it
-            }
+            getString(ARG_FILE_PROVIDER_AUTH)?.let { fileProviderAuthority = it }
             cameraDirection = getInt(ARG_CAMERA_DIRECTION, CameraDirection.Front.code)
         }
     }
@@ -171,20 +169,16 @@ class CameraFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        previewView.post {
-            setup()
-        }
+        previewView.post { setup() }
     }
 
     override fun onDestroyView() {
         clear()
-
         super.onDestroyView()
     }
 
     override fun onDestroy() {
         cameraListener = null
-
         super.onDestroy()
     }
 
@@ -238,9 +232,8 @@ class CameraFragment : BaseFragment() {
         clear()
 
         executorService = Executors.newSingleThreadExecutor()
-
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProvider = cameraProviderFuture.get()
+        cameraProvider = ProcessCameraProvider.getInstance(requireContext()).get()
+        extensionsManager = ExtensionsManager.getInstance(requireContext()).get()
 
         // 摄像头方向
         when (CameraDirection.generateByCode(cameraDirection)) {
@@ -270,44 +263,36 @@ class CameraFragment : BaseFragment() {
         val displayMetrics = DisplayMetrics()
         previewView.display.getRealMetrics(displayMetrics)
         // 宽高比
-        screenAspectRatio = getSuitableAspectRatio(
-            displayMetrics.widthPixels, displayMetrics.heightPixels
-        )
-
+        screenAspectRatio =
+            getSuitableAspectRatio(displayMetrics.widthPixels, displayMetrics.heightPixels)
         rotation = previewView.display.rotation
-
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-        preview = genPreviewBuilderWithExtenders(cameraSelector!!)
-            // 宽高比
-            .setTargetAspectRatio(screenAspectRatio)
-            // 初始的旋转角度
-            .setTargetRotation(rotation).build()
+        //preview = genPreviewBuilderWithExtenders(cameraSelector!!)
+        preview = genPreviewBuilderWithExtenders()
+            .setTargetAspectRatio(screenAspectRatio)    // 宽高比
+            .setTargetRotation(rotation)
+            .build()    // 初始的旋转角度
 
         imageAnalysis = ImageAnalysis.Builder().setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation).build()
 
-        imageAnalysis?.setAnalyzer(executorService!!, { imageProxy ->
+        imageAnalysis?.setAnalyzer(executorService!!) { imageProxy ->
             // 图片分析处理逻辑
-            imageProxy.use {
-                cameraListener?.analyseImage(it)
-            }
-        })
+            imageProxy.use { cameraListener?.analyseImage(it) }
+        }
 
         initialized = true
-
         startPreview()
     }
 
-    fun startPreview(force: Boolean = false): Boolean {
+    private fun startPreview(force: Boolean = false): Boolean {
         return if (force || cameraState.compareAndSet(CameraState.Idle, CameraState.Preview)) {
             cameraProvider?.unbindAll()
             cameraProvider?.bindToLifecycle(
                 requireActivity(), cameraSelector!!, preview, imageAnalysis
             )
-
             preview?.setSurfaceProvider(previewView.surfaceProvider)
-
             true
         } else {
             false
@@ -315,8 +300,7 @@ class CameraFragment : BaseFragment() {
     }
 
     fun takePicture(): Boolean {
-        // 组件是否初始化
-        if (!initialized) {
+        if (!initialized) { // 组件是否初始化
             toastError(R.string.tip_component_initialize_fail)
             return false
         }
@@ -347,8 +331,7 @@ class CameraFragment : BaseFragment() {
 
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).build()
 
-        imageCapture?.takePicture(fileOptions,
-            executorService!!,
+        imageCapture?.takePicture(fileOptions, executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     if (!initialized) return
@@ -377,9 +360,7 @@ class CameraFragment : BaseFragment() {
                     )
 
                     switchToPreviewState()
-
                     cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Image, msg))
-
                     imageCapture = null
                 }
             })
@@ -401,10 +382,8 @@ class CameraFragment : BaseFragment() {
 
         videoCapture = VideoCapture.Builder().setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation)
-            // 视频帧率
-            .setVideoFrameRate(25)
-            // bit率
-            .setBitRate(1024 * 1024).build()
+            .setVideoFrameRate(25)  // 视频帧率
+            .setBitRate(1024 * 1024).build()    // bit率
 
         cameraProvider?.run {
             unbindAll()
@@ -424,14 +403,12 @@ class CameraFragment : BaseFragment() {
 
         topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(fileOptions,
-            executorService!!,
+        videoCapture?.startRecording(fileOptions, executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
                     if (!initialized) return
 
                     val savedUri = outputFileResults.savedUri ?: filePath2Uri(file.absolutePath)
-
                     switchToPreviewState()
 
                     cameraListener?.onOperationResult(
@@ -453,9 +430,7 @@ class CameraFragment : BaseFragment() {
                     )
 
                     switchToPreviewState()
-
                     cameraListener?.onOperationResult(CameraOpResult.Failure(CameraOp.Video, msg))
-
                     videoCapture = null
                 }
             })
@@ -465,8 +440,7 @@ class CameraFragment : BaseFragment() {
 
     @SuppressLint("RestrictedApi")
     fun stopRecording(): Boolean {
-        // 组件是否初始化
-        if (!initialized) {
+        if (!initialized) { // 组件是否初始化
             toastError(R.string.tip_component_initialize_fail)
             return false
         }
@@ -487,9 +461,56 @@ class CameraFragment : BaseFragment() {
         cameraState.set(CameraState.Preview)
     }
 
-    private fun genPreviewBuilderWithExtenders(cameraSelector: CameraSelector): Preview.Builder {
+    //TODO 判断cameraSelector是否为局部状态修改
+    //private fun genPreviewBuilderWithExtenders(cameraSelector: CameraSelector): Preview.Builder {
+    private fun genPreviewBuilderWithExtenders(): Preview.Builder {
         val builder = Preview.Builder()
         //ExtensionsManager API文档：https://developer.android.google.cn/reference/androidx/camera/extensions/ExtensionsManager
+
+        if (extensionsManager!!.isExtensionAvailable( // 检查是否支持 BOKEH
+                cameraProvider!!, cameraSelector!!, ExtensionMode.AUTO
+            )
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.AUTO
+            )
+        }
+
+        if (extensionsManager!!.isExtensionAvailable(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.BOKEH
+            )
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.BOKEH
+            )
+        }
+
+        if (extensionsManager!!.isExtensionAvailable(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.HDR
+            )
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.HDR
+            )
+        }
+
+        if (extensionsManager!!.isExtensionAvailable(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.FACE_RETOUCH
+            )
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.FACE_RETOUCH
+            )
+        }
+
+        if (extensionsManager!!.isExtensionAvailable(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.NIGHT
+            )
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, ExtensionMode.NIGHT
+            )
+        }
 
 //        val autoExtender = AutoPreviewExtender.create(builder)
 //        if (autoExtender.isExtensionAvailable(cameraSelector)) {
@@ -513,6 +534,15 @@ class CameraFragment : BaseFragment() {
 //        }
 
         return builder
+    }
+
+    private fun setExtension(model: Int) {
+        if (extensionsManager!!.isExtensionAvailable(cameraProvider!!, cameraSelector!!, model)
+        ) {
+            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+                cameraProvider!!, cameraSelector!!, model
+            )
+        }
     }
 
     private fun genImageCaptureExtenderWithExtenders(cameraSelector: CameraSelector): ImageCapture.Builder {
