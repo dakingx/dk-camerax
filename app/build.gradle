@@ -44,5 +44,5 @@ dependencies {
     // fragment
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
     // dexter for permission
-    implementation 'com.karumi:dexter:6.2.1'
+    implementation 'com.karumi:dexter:6.2.3'
 }
