@@ -24,7 +24,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	implementation 'com.github.dakingx:dk-camerax:<请查看已发布版本>'
+    implementation 'com.github.CraftsmanHyj:dk-camerax:Tag'
 }
 ```
 
