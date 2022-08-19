@@ -15,7 +15,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import kotlinx.android.synthetic.main.fragment_preview_video.*
 
 class PreviewVideoFragment : BaseFragment() {
-
     companion object {
         const val ARG_VIDEO_URI = "arg_video_uri"
     }
@@ -54,7 +53,6 @@ class PreviewVideoFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
 
         initializePlayer()
-
         setVideoURI(videoUri)
     }
 

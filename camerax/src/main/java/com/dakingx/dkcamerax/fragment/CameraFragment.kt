@@ -79,6 +79,14 @@ sealed class CameraOpResult {
     class Failure(val op: CameraOp, val msg: String) : CameraOpResult()
 }
 
+interface CameraFragmentListener {
+    // 操作结果回调
+    fun onOperationResult(result: CameraOpResult)
+
+    // 分析图像
+    fun analyseImage(proxy: ImageProxy)
+}
+
 class CameraFragment : BaseFragment() {
     companion object {
         val REQUIRED_PERMISSIONS = listOf(
@@ -268,11 +276,10 @@ class CameraFragment : BaseFragment() {
         rotation = previewView.display.rotation
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-        //preview = genPreviewBuilderWithExtenders(cameraSelector!!)
         preview = genPreviewBuilderWithExtenders()
-            .setTargetAspectRatio(screenAspectRatio)    // 宽高比
-            .setTargetRotation(rotation)
-            .build()    // 初始的旋转角度
+            .setTargetAspectRatio(screenAspectRatio)//宽高比
+            .setTargetRotation(rotation)//初始的旋转角度
+            .build()
 
         imageAnalysis = ImageAnalysis.Builder().setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation).build()
@@ -309,7 +316,7 @@ class CameraFragment : BaseFragment() {
             return false
         }
 
-        imageCapture = genImageCaptureExtenderWithExtenders(cameraSelector!!)
+        imageCapture = genImageCaptureExtenderWithExtenders()
             // 优化捕获速度，可能降低图片质量
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // 闪光模式
@@ -461,115 +468,36 @@ class CameraFragment : BaseFragment() {
         cameraState.set(CameraState.Preview)
     }
 
-    //TODO 判断cameraSelector是否为局部状态修改
-    //private fun genPreviewBuilderWithExtenders(cameraSelector: CameraSelector): Preview.Builder {
     private fun genPreviewBuilderWithExtenders(): Preview.Builder {
-        val builder = Preview.Builder()
-        //ExtensionsManager API文档：https://developer.android.google.cn/reference/androidx/camera/extensions/ExtensionsManager
+        //ExtensionsManager API文档
+        //https://developer.android.google.cn/reference/androidx/camera/extensions/ExtensionsManager
+        //https://101.dev/t/camerax-extensions-api/470
 
-        if (extensionsManager!!.isExtensionAvailable( // 检查是否支持 BOKEH
-                cameraProvider!!, cameraSelector!!, ExtensionMode.AUTO
-            )
-        ) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.AUTO
-            )
-        }
+        setExtension(ExtensionMode.AUTO)//自动
+        setExtension(ExtensionMode.BOKEH)//焦外成像
+        setExtension(ExtensionMode.HDR)//高动态范围
+        setExtension(ExtensionMode.FACE_RETOUCH)//脸部照片修复
+        setExtension(ExtensionMode.NIGHT)//夜间
 
-        if (extensionsManager!!.isExtensionAvailable(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.BOKEH
-            )
-        ) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.BOKEH
-            )
-        }
-
-        if (extensionsManager!!.isExtensionAvailable(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.HDR
-            )
-        ) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.HDR
-            )
-        }
-
-        if (extensionsManager!!.isExtensionAvailable(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.FACE_RETOUCH
-            )
-        ) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.FACE_RETOUCH
-            )
-        }
-
-        if (extensionsManager!!.isExtensionAvailable(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.NIGHT
-            )
-        ) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, ExtensionMode.NIGHT
-            )
-        }
-
-//        val autoExtender = AutoPreviewExtender.create(builder)
-//        if (autoExtender.isExtensionAvailable(cameraSelector)) {
-//            autoExtender.enableExtension(cameraSelector)
-//        }
-//        val bokehExtender = BokehPreviewExtender.create(builder)
-//        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
-//            bokehExtender.enableExtension(cameraSelector)
-//        }
-//        val hdrExtender = HdrPreviewExtender.create(builder)
-//        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
-//            hdrExtender.enableExtension(cameraSelector)
-//        }
-//        val beautyExtender = BeautyPreviewExtender.create(builder)
-//        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
-//            beautyExtender.enableExtension(cameraSelector)
-//        }
-//        val nightExtender = NightPreviewExtender.create(builder)
-//        if (nightExtender.isExtensionAvailable(cameraSelector)) {
-//            nightExtender.enableExtension(cameraSelector)
-//        }
-
-        return builder
+        return Preview.Builder()
     }
 
-    private fun setExtension(model: Int) {
-        if (extensionsManager!!.isExtensionAvailable(cameraProvider!!, cameraSelector!!, model)
-        ) {
+    private fun setExtension(mode: Int) {
+        if (extensionsManager!!.isExtensionAvailable(cameraProvider!!, cameraSelector!!, mode)) {
             cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, model
+                cameraProvider!!, cameraSelector!!, mode
             )
         }
     }
 
-    private fun genImageCaptureExtenderWithExtenders(cameraSelector: CameraSelector): ImageCapture.Builder {
-        val builder = ImageCapture.Builder()
+    private fun genImageCaptureExtenderWithExtenders(): ImageCapture.Builder {
+        setExtension(ExtensionMode.AUTO)//自动
+        setExtension(ExtensionMode.BOKEH)//焦外成像
+        setExtension(ExtensionMode.HDR)//高动态范围
+        setExtension(ExtensionMode.FACE_RETOUCH)//脸部照片修复
+        setExtension(ExtensionMode.NIGHT)//夜间
 
-//        val autoExtender = AutoImageCaptureExtender.create(builder)
-//        if (autoExtender.isExtensionAvailable(cameraSelector)) {
-//            autoExtender.enableExtension(cameraSelector)
-//        }
-//        val bokehExtender = BokehImageCaptureExtender.create(builder)
-//        if (bokehExtender.isExtensionAvailable(cameraSelector)) {
-//            bokehExtender.enableExtension(cameraSelector)
-//        }
-//        val hdrExtender = HdrImageCaptureExtender.create(builder)
-//        if (hdrExtender.isExtensionAvailable(cameraSelector)) {
-//            hdrExtender.enableExtension(cameraSelector)
-//        }
-//        val beautyExtender = BeautyImageCaptureExtender.create(builder)
-//        if (beautyExtender.isExtensionAvailable(cameraSelector)) {
-//            beautyExtender.enableExtension(cameraSelector)
-//        }
-//        val nightExtender = NightImageCaptureExtender.create(builder)
-//        if (nightExtender.isExtensionAvailable(cameraSelector)) {
-//            nightExtender.enableExtension(cameraSelector)
-//        }
-
-        return builder
+        return ImageCapture.Builder()
     }
 
     /**
@@ -606,12 +534,4 @@ class CameraFragment : BaseFragment() {
 
     private fun toastError(@StringRes stringResId: Int) =
         Toast.makeText(requireContext(), getString(stringResId), Toast.LENGTH_SHORT).show()
-}
-
-interface CameraFragmentListener {
-    // 操作结果回调
-    fun onOperationResult(result: CameraOpResult)
-
-    // 分析图像
-    fun analyseImage(proxy: ImageProxy)
 }

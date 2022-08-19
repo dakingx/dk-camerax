@@ -16,7 +16,6 @@ import com.dakingx.dkpreview.fragment.PreviewVideoFragment
 import kotlinx.android.synthetic.main.activity_camera.*
 
 class CameraActivity : AppCompatActivity(), CameraFragmentListener {
-
     companion object {
         fun start(context: Context, cameraDirection: CameraDirection) =
             context.startActivity(
@@ -36,10 +35,7 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
         setContentView(R.layout.activity_camera)
 
         val cameraDirection = CameraDirection.generateByCode(
-            intent.getIntExtra(
-                ARG_CAMERA_DIRECTION,
-                CameraDirection.Front.code
-            )
+            intent.getIntExtra(ARG_CAMERA_DIRECTION, CameraDirection.Front.code)
         )
 
         cameraFragment = CameraFragment.newInstance(getFileProviderAuthority(), cameraDirection)
@@ -124,7 +120,5 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
         }
     }
 
-    override fun analyseImage(proxy: ImageProxy) {
-
-    }
+    override fun analyseImage(proxy: ImageProxy) {}
 }

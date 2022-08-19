@@ -1,8 +1,8 @@
 package com.dakingx.app.dkcamerax.activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.dakingx.app.dkcamerax.R
 import com.dakingx.dkcamerax.fragment.CameraDirection
 import com.dakingx.dkcamerax.fragment.CameraFragment
@@ -35,8 +35,7 @@ class MainActivity : AppCompatActivity() {
     private fun startCameraActivity(cameraDirection: CameraDirection) {
         Dexter.withContext(this)
             .withPermissions(*CameraFragment.REQUIRED_PERMISSIONS.toTypedArray())
-            .withListener(object :
-                MultiplePermissionsListener {
+            .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                     if (report.areAllPermissionsGranted()) {
                         runOnUiThread {
