@@ -110,7 +110,9 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
                     CameraOp.Video -> setVideoURI(result.uri)
                 }
             }
-            is CameraOpResult.Failure -> Toast.makeText(this, result.msg, Toast.LENGTH_SHORT).show()
+            is CameraOpResult.Failure -> runOnUiThread {
+                Toast.makeText(this, result.msg, Toast.LENGTH_SHORT).show()
+            }
         }
 
         runOnUiThread {

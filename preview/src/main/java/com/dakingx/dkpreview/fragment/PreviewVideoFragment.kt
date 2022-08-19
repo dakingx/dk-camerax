@@ -20,7 +20,6 @@ class PreviewVideoFragment : BaseFragment() {
     }
 
     private var videoUri: Uri = Uri.EMPTY
-
     private var player: SimpleExoPlayer? = null
 
     private val mediaSourceFactory: ProgressiveMediaSource.Factory by lazy {
