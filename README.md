@@ -5,7 +5,7 @@
 
 本组件兼容Android 11的Scoped Storage。
 
-[![](https://jitpack.io/v/dakingx/dk-camerax.svg)](https://jitpack.io/#dakingx/dk-camerax)
+[![](https://jitpack.io/v/CraftsmanHyj/dk-camerax.svg)](https://jitpack.io/#CraftsmanHyj/dk-camerax)
 
 # 工程项目配置
 ## 添加JitPack仓库
