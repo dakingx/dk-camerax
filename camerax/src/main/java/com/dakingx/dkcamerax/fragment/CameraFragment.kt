@@ -320,8 +320,10 @@ class CameraFragment : BaseFragment() {
             // 优化捕获速度，可能降低图片质量
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // 闪光模式
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF).setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(rotation).build()
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+            .setTargetAspectRatio(screenAspectRatio)
+            .setTargetRotation(rotation)
+            .build()
 
         cameraProvider?.run {
             unbindAll()
@@ -336,7 +338,9 @@ class CameraFragment : BaseFragment() {
             return false
         }
 
-        val fileOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+        val metadata = ImageCapture.Metadata()  //控制前置摄像头拍照不镜像
+        metadata.isReversedHorizontal = cameraDirection == CameraDirection.Front.code
+        val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
         imageCapture?.takePicture(fileOptions, executorService!!,
             object : ImageCapture.OnImageSavedCallback {
