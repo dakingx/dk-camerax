@@ -339,7 +339,7 @@ class CameraFragment : BaseFragment() {
         }
 
         val metadata = ImageCapture.Metadata()  //控制前置摄像头拍照不镜像
-        metadata.isReversedHorizontal = cameraDirection == CameraDirection.Front.code
+        metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
         imageCapture?.takePicture(fileOptions, executorService!!,
