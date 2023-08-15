@@ -20,19 +20,16 @@ fun Context.generateTempFile(prefix: String, extension: String = "jpg"): File? {
     }
 }
 
-fun Context.filePath2Uri(fileProviderAuthority: String, filePath: String): Uri? =
-    try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            FileProvider.getUriForFile(this, fileProviderAuthority, File(filePath))
-        } else {
-            Uri.fromFile(File(filePath))
-        }
-    } catch (e: Throwable) {
-        null
+fun Context.filePath2Uri(fileProviderAuthority: String, filePath: String): Uri? = try {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        FileProvider.getUriForFile(this, fileProviderAuthority, File(filePath))
+    } else {
+        Uri.fromFile(File(filePath))
     }
+} catch (e: Throwable) {
+    null
+}
 
 fun Context.checkAppPermission(vararg permission: String): Boolean = permission.all {
-    ContextCompat.checkSelfPermission(
-        this, it
-    ) == PackageManager.PERMISSION_GRANTED
+    ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
 }

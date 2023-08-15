@@ -205,9 +205,11 @@ class CameraFragment : BaseFragment() {
                         videoCapture?.stopRecording()
                         videoCapture?.camera?.release()
                     }
+
                     cameraState.get() == CameraState.Image -> {
                         imageCapture?.camera?.release()
                     }
+
                     else -> {
                         preview?.camera?.release()
                     }
@@ -252,6 +254,7 @@ class CameraFragment : BaseFragment() {
                 }
                 lensFacing = LENS_FACING_FRONT
             }
+
             CameraDirection.Back -> {
                 if (!hasBackCamera()) {
                     toastError(R.string.tip_other_app_hold_the_camera)
@@ -259,6 +262,7 @@ class CameraFragment : BaseFragment() {
                 }
                 lensFacing = LENS_FACING_BACK
             }
+
             CameraDirection.Any -> {
                 lensFacing = getSuitableLensFacing()
                 if (lensFacing == LENS_FACING_NULL) {
@@ -276,8 +280,7 @@ class CameraFragment : BaseFragment() {
         rotation = previewView.display.rotation
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-        preview = genPreviewBuilderWithExtenders()
-            .setTargetAspectRatio(screenAspectRatio)//宽高比
+        preview = genPreviewBuilderWithExtenders().setTargetAspectRatio(screenAspectRatio)//宽高比
             .setTargetRotation(rotation)//初始的旋转角度
             .build()
 
@@ -320,10 +323,8 @@ class CameraFragment : BaseFragment() {
             // 优化捕获速度，可能降低图片质量
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // 闪光模式
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-            .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(rotation)
-            .build()
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF).setTargetAspectRatio(screenAspectRatio)
+            .setTargetRotation(rotation).build()
 
         cameraProvider?.run {
             unbindAll()
@@ -342,7 +343,9 @@ class CameraFragment : BaseFragment() {
         metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
-        imageCapture?.takePicture(fileOptions, executorService!!,
+        imageCapture?.takePicture(
+            fileOptions,
+            executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     if (!initialized) return
@@ -354,8 +357,7 @@ class CameraFragment : BaseFragment() {
                     cameraListener?.onOperationResult(
                         if (savedUri != null) CameraOpResult.Success(CameraOp.Image, savedUri)
                         else CameraOpResult.Failure(
-                            CameraOp.Image,
-                            getString(R.string.tip_output_uri_not_found)
+                            CameraOp.Image, getString(R.string.tip_output_uri_not_found)
                         )
                     )
 
@@ -392,8 +394,7 @@ class CameraFragment : BaseFragment() {
         }
 
         videoCapture = VideoCapture.Builder().setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(rotation)
-            .setVideoFrameRate(25)  // 视频帧率
+            .setTargetRotation(rotation).setVideoFrameRate(25)  // 视频帧率
             .setBitRate(1024 * 1024).build()    // bit率
 
         cameraProvider?.run {
@@ -414,7 +415,9 @@ class CameraFragment : BaseFragment() {
 
         topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(fileOptions, executorService!!,
+        videoCapture?.startRecording(
+            fileOptions,
+            executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
                     if (!initialized) return
@@ -425,8 +428,7 @@ class CameraFragment : BaseFragment() {
                     cameraListener?.onOperationResult(
                         if (savedUri != null) CameraOpResult.Success(CameraOp.Video, savedUri)
                         else CameraOpResult.Failure(
-                            CameraOp.Video,
-                            getString(R.string.tip_output_uri_not_found)
+                            CameraOp.Video, getString(R.string.tip_output_uri_not_found)
                         )
                     )
 
