@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdk compile_sdk_version
@@ -32,6 +32,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "$jdk_version"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 

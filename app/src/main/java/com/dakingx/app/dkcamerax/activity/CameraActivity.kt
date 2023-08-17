@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageProxy
 import com.dakingx.app.dkcamerax.R
 import com.dakingx.app.dkcamerax.config.getFileProviderAuthority
+import com.dakingx.app.dkcamerax.databinding.ActivityCameraBinding
 import com.dakingx.dkcamerax.fragment.CameraDirection
 import com.dakingx.dkcamerax.fragment.CameraFragment
 import com.dakingx.dkcamerax.fragment.CameraFragmentListener
@@ -17,11 +18,11 @@ import com.dakingx.dkcamerax.fragment.CameraOp
 import com.dakingx.dkcamerax.fragment.CameraOpResult
 import com.dakingx.dkpreview.fragment.PreviewImageFragment
 import com.dakingx.dkpreview.fragment.PreviewVideoFragment
-import kotlinx.android.synthetic.main.activity_camera.startRecordingBtn
-import kotlinx.android.synthetic.main.activity_camera.stopRecodingBtn
-import kotlinx.android.synthetic.main.activity_camera.takePictureBtn
 
 class CameraActivity : AppCompatActivity(), CameraFragmentListener {
+
+    private val mBinding by lazy { ActivityCameraBinding.inflate(layoutInflater) }
+
     companion object {
         fun start(context: Context, cameraDirection: CameraDirection) =
             context.startActivity(Intent(context, CameraActivity::class.java).apply {
@@ -37,7 +38,7 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
+        setContentView(mBinding.root)
 
         val cameraDirection = CameraDirection.generateByCode(
             intent.getIntExtra(ARG_CAMERA_DIRECTION, CameraDirection.Front.code)
@@ -53,23 +54,23 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
             .add(R.id.container_camera, cameraFragment).hide(previewImageFragment)
             .hide(previewVideoFragment).commitNow()
 
-        takePictureBtn.setOnClickListener {
-            takePictureBtn.visibility = View.GONE
-            startRecordingBtn.visibility = View.GONE
+        mBinding.takePictureBtn.setOnClickListener {
+            mBinding.takePictureBtn.visibility = View.GONE
+            mBinding.startRecordingBtn.visibility = View.GONE
 
             cameraFragment.takePicture()
         }
 
-        startRecordingBtn.setOnClickListener {
-            takePictureBtn.visibility = View.GONE
-            startRecordingBtn.visibility = View.GONE
-            stopRecodingBtn.visibility = View.VISIBLE
+        mBinding.startRecordingBtn.setOnClickListener {
+            mBinding.takePictureBtn.visibility = View.GONE
+            mBinding.startRecordingBtn.visibility = View.GONE
+            mBinding.stopRecodingBtn.visibility = View.VISIBLE
 
             cameraFragment.startRecording()
         }
 
-        stopRecodingBtn.setOnClickListener {
-            stopRecodingBtn.visibility = View.GONE
+        mBinding.stopRecodingBtn.setOnClickListener {
+            mBinding.stopRecodingBtn.visibility = View.GONE
 
             cameraFragment.stopRecording()
         }
@@ -120,9 +121,9 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
         }
 
         runOnUiThread {
-            takePictureBtn.visibility = View.VISIBLE
-            startRecordingBtn.visibility = View.VISIBLE
-            stopRecodingBtn.visibility = View.GONE
+            mBinding.takePictureBtn.visibility = View.VISIBLE
+            mBinding.startRecordingBtn.visibility = View.VISIBLE
+            mBinding.stopRecodingBtn.visibility = View.GONE
         }
     }
 
