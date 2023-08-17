@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 group = 'com.github.dakingx'
 
 android {
-    compileSdkVersion compile_sdk_version
+    compileSdk compile_sdk_version
 
     defaultConfig {
         minSdkVersion min_sdk_version
@@ -54,10 +54,11 @@ dependencies {
 }
 
 // 打包源码
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
+
 artifacts {
     archives sourcesJar
 }
