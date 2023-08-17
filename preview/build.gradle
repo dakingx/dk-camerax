@@ -26,8 +26,8 @@ android {
 
     compileOptions {
         encoding = "utf-8"
-        sourceCompatibility jdk_version
-        targetCompatibility jdk_version
+        sourceCompatibility compatibility_version
+        targetCompatibility compatibility_version
     }
 
     kotlinOptions {

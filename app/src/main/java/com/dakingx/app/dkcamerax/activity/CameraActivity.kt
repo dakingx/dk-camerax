@@ -10,18 +10,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageProxy
 import com.dakingx.app.dkcamerax.R
 import com.dakingx.app.dkcamerax.config.getFileProviderAuthority
-import com.dakingx.dkcamerax.fragment.*
+import com.dakingx.dkcamerax.fragment.CameraDirection
+import com.dakingx.dkcamerax.fragment.CameraFragment
+import com.dakingx.dkcamerax.fragment.CameraFragmentListener
+import com.dakingx.dkcamerax.fragment.CameraOp
+import com.dakingx.dkcamerax.fragment.CameraOpResult
 import com.dakingx.dkpreview.fragment.PreviewImageFragment
 import com.dakingx.dkpreview.fragment.PreviewVideoFragment
-import kotlinx.android.synthetic.main.activity_camera.*
+import kotlinx.android.synthetic.main.activity_camera.startRecordingBtn
+import kotlinx.android.synthetic.main.activity_camera.stopRecodingBtn
+import kotlinx.android.synthetic.main.activity_camera.takePictureBtn
 
 class CameraActivity : AppCompatActivity(), CameraFragmentListener {
     companion object {
         fun start(context: Context, cameraDirection: CameraDirection) =
-            context.startActivity(
-                Intent(context, CameraActivity::class.java).apply {
-                    putExtra(ARG_CAMERA_DIRECTION, cameraDirection.code)
-                })
+            context.startActivity(Intent(context, CameraActivity::class.java).apply {
+                putExtra(ARG_CAMERA_DIRECTION, cameraDirection.code)
+            })
 
         private const val ARG_CAMERA_DIRECTION = "arg_camera_direction"
     }
@@ -45,10 +50,8 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
         supportFragmentManager.beginTransaction()
             .add(R.id.container_preview_image, previewImageFragment)
             .add(R.id.container_preview_video, previewVideoFragment)
-            .add(R.id.container_camera, cameraFragment)
-            .hide(previewImageFragment)
-            .hide(previewVideoFragment)
-            .commitNow()
+            .add(R.id.container_camera, cameraFragment).hide(previewImageFragment)
+            .hide(previewVideoFragment).commitNow()
 
         takePictureBtn.setOnClickListener {
             takePictureBtn.visibility = View.GONE
@@ -110,6 +113,7 @@ class CameraActivity : AppCompatActivity(), CameraFragmentListener {
                     CameraOp.Video -> setVideoURI(result.uri)
                 }
             }
+
             is CameraOpResult.Failure -> runOnUiThread {
                 Toast.makeText(this, result.msg, Toast.LENGTH_SHORT).show()
             }

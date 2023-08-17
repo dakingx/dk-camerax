@@ -12,7 +12,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import kotlinx.android.synthetic.main.fragment_preview_video.*
+import kotlinx.android.synthetic.main.fragment_preview_video.playerView
 
 class PreviewVideoFragment : BaseFragment() {
     companion object {
@@ -44,8 +44,7 @@ class PreviewVideoFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_preview_video, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

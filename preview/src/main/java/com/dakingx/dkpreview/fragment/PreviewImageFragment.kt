@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dakingx.dkpreview.R
-import kotlinx.android.synthetic.main.fragment_preview_image.*
+import kotlinx.android.synthetic.main.fragment_preview_image.photoView
 
 class PreviewImageFragment : BaseFragment() {
 
@@ -29,8 +29,7 @@ class PreviewImageFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_preview_image, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

@@ -1,7 +1,7 @@
 buildscript {
     ext {
         jdk_version = 1.8
-        compatibility_version = JavaVersion.VERSION_17
+        compatibility_version = JavaVersion.VERSION_1_8
 
         compile_sdk_version = 31
         min_sdk_version = 21

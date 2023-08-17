@@ -11,7 +11,8 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.backCameraBtn
+import kotlinx.android.synthetic.main.activity_main.frontCameraBtn
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,8 +50,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
-                    list: MutableList<PermissionRequest>,
-                    token: PermissionToken
+                    list: MutableList<PermissionRequest>, token: PermissionToken
                 ) {
                     token.continuePermissionRequest()
                 }

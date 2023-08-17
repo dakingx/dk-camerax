@@ -21,7 +21,8 @@ import com.dakingx.dkcamerax.R
 import com.dakingx.dkcamerax.ext.checkAppPermission
 import com.dakingx.dkcamerax.ext.filePath2Uri
 import com.dakingx.dkcamerax.ext.generateTempFile
-import kotlinx.android.synthetic.main.fragment_camera.*
+import kotlinx.android.synthetic.main.fragment_camera.previewView
+import kotlinx.android.synthetic.main.fragment_camera.topProgressBar
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
@@ -343,8 +344,7 @@ class CameraFragment : BaseFragment() {
         metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
-        imageCapture?.takePicture(
-            fileOptions,
+        imageCapture?.takePicture(fileOptions,
             executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
@@ -415,8 +415,7 @@ class CameraFragment : BaseFragment() {
 
         topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(
-            fileOptions,
+        videoCapture?.startRecording(fileOptions,
             executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
