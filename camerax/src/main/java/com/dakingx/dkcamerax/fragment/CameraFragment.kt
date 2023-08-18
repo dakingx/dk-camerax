@@ -301,7 +301,7 @@ class CameraFragment : BaseFragment() {
         startPreview()
     }
 
-    private fun startPreview(force: Boolean = false): Boolean {
+    fun startPreview(force: Boolean = false): Boolean {
         return if (force || cameraState.compareAndSet(CameraState.Idle, CameraState.Preview)) {
             cameraProvider?.unbindAll()
             cameraProvider?.bindToLifecycle(
