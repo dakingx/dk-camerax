@@ -92,8 +92,11 @@ class CameraFragment : BaseFragment() {
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO,
         )
 
         @JvmStatic
@@ -348,7 +351,8 @@ class CameraFragment : BaseFragment() {
         metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
-        imageCapture?.takePicture(fileOptions,
+        imageCapture?.takePicture(
+            fileOptions,
             executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
@@ -419,7 +423,8 @@ class CameraFragment : BaseFragment() {
 
         mBinding.topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(fileOptions,
+        videoCapture?.startRecording(
+            fileOptions,
             executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
