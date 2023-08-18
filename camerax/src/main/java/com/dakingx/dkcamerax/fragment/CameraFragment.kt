@@ -3,6 +3,7 @@ package com.dakingx.dkcamerax.fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -89,14 +90,36 @@ interface CameraFragmentListener {
 
 class CameraFragment : BaseFragment() {
     companion object {
+
+        /**
+         * 根据系统版本返回所需的权限
+         */
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+        } else {
+            listOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+
+        /**
+         * 直接返回需要的新权限，由权限请求框架去适配，如XXPermission
+         */
+        val REQUIRED_PERMISSIONS_TIRAMISU = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_VIDEO,
-            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_MEDIA_AUDIO
         )
 
         @JvmStatic
