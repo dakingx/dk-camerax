@@ -90,9 +90,8 @@ interface CameraFragmentListener {
 
 class CameraFragment : BaseFragment() {
     companion object {
-
         /**
-         * 根据系统版本返回所需的权限
+         * 根据系统版本返回相机、录音、写存储、读存储权限
          */
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
@@ -111,7 +110,7 @@ class CameraFragment : BaseFragment() {
         }
 
         /**
-         * 直接返回需要的新权限，由权限请求框架去适配，如XXPermission
+         * 返回新的动态权限：相机、录音、写存储、读存储权限，如XXPermission
          */
         val REQUIRED_PERMISSIONS_TIRAMISU = listOf(
             Manifest.permission.CAMERA,
