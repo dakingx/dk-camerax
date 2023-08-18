@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dakingx.dkpreview.R
-import kotlinx.android.synthetic.main.fragment_preview_image.photoView
+import com.dakingx.dkpreview.databinding.FragmentPreviewImageBinding
 
 class PreviewImageFragment : BaseFragment() {
 
@@ -15,6 +15,8 @@ class PreviewImageFragment : BaseFragment() {
     }
 
     private var imageUri: Uri = Uri.EMPTY
+
+    private lateinit var mBinding: FragmentPreviewImageBinding
 
     override fun restoreState(bundle: Bundle?) {
         bundle?.apply {
@@ -30,7 +32,10 @@ class PreviewImageFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_preview_image, container, false)
+    ): View {
+        mBinding = FragmentPreviewImageBinding.inflate(inflater, container, false)
+        return mBinding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -41,13 +46,13 @@ class PreviewImageFragment : BaseFragment() {
     fun setImageURI(uri: Uri) {
         imageUri = uri
 
-        photoView.post {
+        mBinding.photoView.post {
             val curUri = imageUri
 
             if (Uri.EMPTY == curUri) {
-                photoView.setImageResource(R.drawable.ic_image_24dp)
+                mBinding.photoView.setImageResource(R.drawable.ic_image_24dp)
             } else {
-                photoView.setImageURI(curUri)
+                mBinding.photoView.setImageURI(curUri)
             }
         }
     }

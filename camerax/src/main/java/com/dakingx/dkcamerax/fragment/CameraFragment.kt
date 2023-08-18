@@ -18,11 +18,10 @@ import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.dakingx.dkcamerax.R
+import com.dakingx.dkcamerax.databinding.FragmentCameraBinding
 import com.dakingx.dkcamerax.ext.checkAppPermission
 import com.dakingx.dkcamerax.ext.filePath2Uri
 import com.dakingx.dkcamerax.ext.generateTempFile
-import kotlinx.android.synthetic.main.fragment_camera.previewView
-import kotlinx.android.synthetic.main.fragment_camera.topProgressBar
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
@@ -117,6 +116,8 @@ class CameraFragment : BaseFragment() {
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
 
+    private lateinit var mBinding: FragmentCameraBinding
+
     private var fileProviderAuthority: String = ""
     private var cameraDirection: Int = CameraDirection.Front.code
 
@@ -173,12 +174,15 @@ class CameraFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_camera, container, false)
+    ): View {
+        mBinding = FragmentCameraBinding.inflate(inflater, container, false)
+        return mBinding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        previewView.post { setup() }
+        mBinding.previewView.post { setup() }
     }
 
     override fun onDestroyView() {
@@ -274,11 +278,11 @@ class CameraFragment : BaseFragment() {
         }
 
         val displayMetrics = DisplayMetrics()
-        previewView.display.getRealMetrics(displayMetrics)
+        mBinding.previewView.display.getRealMetrics(displayMetrics)
         // 宽高比
         screenAspectRatio =
             getSuitableAspectRatio(displayMetrics.widthPixels, displayMetrics.heightPixels)
-        rotation = previewView.display.rotation
+        rotation = mBinding.previewView.display.rotation
         cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
         preview = genPreviewBuilderWithExtenders().setTargetAspectRatio(screenAspectRatio)//宽高比
@@ -303,7 +307,7 @@ class CameraFragment : BaseFragment() {
             cameraProvider?.bindToLifecycle(
                 requireActivity(), cameraSelector!!, preview, imageAnalysis
             )
-            preview?.setSurfaceProvider(previewView.surfaceProvider)
+            preview?.setSurfaceProvider(mBinding.previewView.surfaceProvider)
             true
         } else {
             false
@@ -331,7 +335,7 @@ class CameraFragment : BaseFragment() {
             unbindAll()
             bindToLifecycle(requireActivity(), cameraSelector!!, preview, imageCapture)
         }
-        preview?.setSurfaceProvider(previewView.surfaceProvider)
+        preview?.setSurfaceProvider(mBinding.previewView.surfaceProvider)
 
         val file = requireContext().generateTempFile("capture_image")
         if (file == null) {
@@ -402,7 +406,7 @@ class CameraFragment : BaseFragment() {
             bindToLifecycle(requireActivity(), cameraSelector!!, preview, videoCapture)
         }
 
-        preview?.setSurfaceProvider(previewView.surfaceProvider)
+        preview?.setSurfaceProvider(mBinding.previewView.surfaceProvider)
 
         val file = requireContext().generateTempFile("capture_image", "mp4")
         if (file == null) {
@@ -413,7 +417,7 @@ class CameraFragment : BaseFragment() {
 
         val fileOptions = VideoCapture.OutputFileOptions.Builder(file).build()
 
-        topProgressBar.visibility = View.VISIBLE
+        mBinding.topProgressBar.visibility = View.VISIBLE
 
         videoCapture?.startRecording(fileOptions,
             executorService!!,
@@ -467,7 +471,7 @@ class CameraFragment : BaseFragment() {
 
     private fun switchToPreviewState() {
         handler.post {
-            topProgressBar.visibility = View.GONE
+            mBinding.topProgressBar.visibility = View.GONE
         }
 
         cameraState.set(CameraState.Preview)

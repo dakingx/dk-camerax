@@ -5,14 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.dakingx.dkpreview.R
+import com.dakingx.dkpreview.databinding.FragmentPreviewVideoBinding
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import kotlinx.android.synthetic.main.fragment_preview_video.playerView
 
 class PreviewVideoFragment : BaseFragment() {
     companion object {
@@ -31,6 +30,8 @@ class PreviewVideoFragment : BaseFragment() {
     private var curWindowIndex = 0
     private var curPosition: Long = 0
 
+    private lateinit var mBinding: FragmentPreviewVideoBinding
+
     override fun restoreState(bundle: Bundle?) {
         bundle?.apply {
             getParcelable<Uri>(ARG_VIDEO_URI)?.let { videoUri = it }
@@ -45,7 +46,10 @@ class PreviewVideoFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_preview_video, container, false)
+    ): View {
+        mBinding = FragmentPreviewVideoBinding.inflate(inflater, container, false)
+        return mBinding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -78,7 +82,7 @@ class PreviewVideoFragment : BaseFragment() {
     fun setVideoURI(uri: Uri) {
         videoUri = uri
 
-        playerView.post {
+        mBinding.playerView.post {
             player?.let {
                 val mediaSource = mediaSourceFactory.createMediaSource(uri)
                 it.prepare(mediaSource, true, false)
@@ -97,7 +101,7 @@ class PreviewVideoFragment : BaseFragment() {
                 .setLoadControl(DefaultLoadControl.Builder().createDefaultLoadControl()).build()
         }
 
-        playerView.player = player
+        mBinding.playerView.player = player
     }
 
     private fun releasePlayer() {
