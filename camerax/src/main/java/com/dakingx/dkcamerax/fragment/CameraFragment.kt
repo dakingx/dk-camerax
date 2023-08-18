@@ -3,6 +3,7 @@ package com.dakingx.dkcamerax.fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -89,11 +90,35 @@ interface CameraFragmentListener {
 
 class CameraFragment : BaseFragment() {
     companion object {
+        /**
+         * 根据系统版本返回相机、录音、写存储、读存储权限
+         */
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        ) + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+        } else {
+            listOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+
+        /**
+         * 返回新的动态权限：相机、录音、写存储、读存储权限，如XXPermission
+         */
+        val REQUIRED_PERMISSIONS_TIRAMISU = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO
         )
 
         @JvmStatic
@@ -301,7 +326,7 @@ class CameraFragment : BaseFragment() {
         startPreview()
     }
 
-    private fun startPreview(force: Boolean = false): Boolean {
+    fun startPreview(force: Boolean = false): Boolean {
         return if (force || cameraState.compareAndSet(CameraState.Idle, CameraState.Preview)) {
             cameraProvider?.unbindAll()
             cameraProvider?.bindToLifecycle(
@@ -348,7 +373,8 @@ class CameraFragment : BaseFragment() {
         metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
-        imageCapture?.takePicture(fileOptions,
+        imageCapture?.takePicture(
+            fileOptions,
             executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
@@ -419,7 +445,8 @@ class CameraFragment : BaseFragment() {
 
         mBinding.topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(fileOptions,
+        videoCapture?.startRecording(
+            fileOptions,
             executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
