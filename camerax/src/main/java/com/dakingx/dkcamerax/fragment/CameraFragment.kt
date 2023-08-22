@@ -373,8 +373,7 @@ class CameraFragment : BaseFragment() {
         metadata.isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         val fileOptions = ImageCapture.OutputFileOptions.Builder(file).setMetadata(metadata).build()
 
-        imageCapture?.takePicture(
-            fileOptions,
+        imageCapture?.takePicture(fileOptions,
             executorService!!,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
@@ -445,8 +444,7 @@ class CameraFragment : BaseFragment() {
 
         mBinding.topProgressBar.visibility = View.VISIBLE
 
-        videoCapture?.startRecording(
-            fileOptions,
+        videoCapture?.startRecording(fileOptions,
             executorService!!,
             object : VideoCapture.OnVideoSavedCallback {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
@@ -519,11 +517,12 @@ class CameraFragment : BaseFragment() {
     }
 
     private fun setExtension(mode: Int) {
-        if (extensionsManager!!.isExtensionAvailable(cameraProvider!!, cameraSelector!!, mode)) {
-            cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
-                cameraProvider!!, cameraSelector!!, mode
-            )
-        }
+        //三星 s20上不兼容
+        //if (extensionsManager!!.isExtensionAvailable(cameraProvider!!, cameraSelector!!, mode)) {
+        //    cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(
+        //        cameraProvider!!, cameraSelector!!, mode
+        //    )
+        //}
     }
 
     private fun genImageCaptureExtenderWithExtenders(): ImageCapture.Builder {

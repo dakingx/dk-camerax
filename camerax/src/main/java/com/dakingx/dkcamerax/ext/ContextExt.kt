@@ -15,6 +15,8 @@ fun Context.generateTempFile(prefix: String, extension: String = "jpg"): File? {
     val extCacheDir = this.externalCacheDir
     return if (extCacheDir != null && Environment.isExternalStorageEmulated(extCacheDir)) {
         File(extCacheDir.absolutePath, fileName)
+    } else if (null != this.cacheDir) {
+        File(cacheDir.absolutePath, fileName)
     } else {
         null
     }
