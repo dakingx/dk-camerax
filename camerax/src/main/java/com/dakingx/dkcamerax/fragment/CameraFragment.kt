@@ -564,8 +564,17 @@ class CameraFragment : BaseFragment() {
     private fun filePath2Uri(filePath: String): Uri? =
         context?.filePath2Uri(fileProviderAuthority, filePath)
 
-    private fun checkRequiredPermissions(): Boolean =
-        context?.checkAppPermission(*REQUIRED_PERMISSIONS.toTypedArray()) ?: false
+    private fun checkRequiredPermissions(): Boolean {
+        val permissionResult =
+            context?.checkAppPermission(*REQUIRED_PERMISSIONS.toTypedArray()) ?: false
+
+        //XXPermission框架获取权限是无需上层适配的，这里需要兼容
+        val permissionTiramisuResult =
+            context?.checkAppPermission(*REQUIRED_PERMISSIONS_TIRAMISU.toTypedArray()) ?: false
+
+        return permissionResult || permissionTiramisuResult
+    }
+
 
     private fun toastError(@StringRes stringResId: Int) =
         Toast.makeText(requireContext(), getString(stringResId), Toast.LENGTH_SHORT).show()
