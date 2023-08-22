@@ -575,7 +575,6 @@ class CameraFragment : BaseFragment() {
         return permissionResult || permissionTiramisuResult
     }
 
-
     private fun toastError(@StringRes stringResId: Int) =
         Toast.makeText(requireContext(), getString(stringResId), Toast.LENGTH_SHORT).show()
 }
