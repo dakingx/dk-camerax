@@ -96,7 +96,6 @@ class CameraFragment : BaseFragment() {
         val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
         ) + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             listOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
@@ -105,6 +104,7 @@ class CameraFragment : BaseFragment() {
             )
         } else {
             listOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
         }
@@ -115,7 +115,6 @@ class CameraFragment : BaseFragment() {
         val REQUIRED_PERMISSIONS_TIRAMISU = listOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_VIDEO,
             Manifest.permission.READ_MEDIA_AUDIO
