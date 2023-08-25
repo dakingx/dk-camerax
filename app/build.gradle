@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion compile_sdk_version
+    compileSdk compile_sdk_version
 
     defaultConfig {
         applicationId "com.dakingx.app.dkcamerax"
+
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
+
         versionCode Integer.valueOf(app_version_code)
         versionName app_version_name
 
@@ -24,12 +25,16 @@ android {
 
     compileOptions {
         encoding = "utf-8"
-        sourceCompatibility jdk_version
-        targetCompatibility jdk_version
+        sourceCompatibility compatibility_version
+        targetCompatibility compatibility_version
     }
 
     kotlinOptions {
         jvmTarget = "$jdk_version"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -44,5 +49,5 @@ dependencies {
     // fragment
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
     // dexter for permission
-    implementation 'com.karumi:dexter:6.2.1'
+    implementation 'com.karumi:dexter:6.2.3'
 }

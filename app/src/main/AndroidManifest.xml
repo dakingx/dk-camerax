@@ -11,6 +11,7 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".activity.MainActivity"
+            android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,5 +33,4 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-
 </manifest>
